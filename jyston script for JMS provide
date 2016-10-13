@@ -1,0 +1,29 @@
+p=AdminUtilities.convertToList(AdminConfig.list('J2CResourceAdapter'))
+cnt = 0
+for p1 in p:
+ wmq=p1.split("(")[0].split("\"")
+ #print wmq
+ if wmq[1]:
+        if wmq[1]== "WebSphere MQ Resource Adapter":
+                try:
+                 #print p[cnt]
+                 resources= AdminTask.showWMQ(p[cnt]).split(",")
+                 print resources
+                 for r1 in resources :
+                  print r1
+                  recoon = r1.split("=")
+                  #print recoon[0].strip()
+                  #if recoon[0].strip() == "reconnectionRetryInterval":
+                        #print recoon[0].strip()
+                        #print recoon[1].strip()
+                        #if recoon[1].strip() == "400000":
+                         #print recoon[1]
+                         #AdminTask.manageWMQ(p[cnt],[ "-reconnectionRetryInterval 300000"] )
+                         #AdminConfig.save()
+                  if recoon[0].strip() == "startupRetryCount":
+                    print recoon[0].strip()
+                    AdminTask.manageWMQ(p[cnt],["[-customProperties[startupRetryCount 5]]"])
+                    AdminConfig.save()
+                except :
+                 print "failed"
+ cnt = cnt +1
