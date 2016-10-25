@@ -1,0 +1,19 @@
+IFS=" "
+WAS_HOME="/opt/WebSphere/AppServer /opt/WebSphere/AppServer/mnsure-stst2-med-esb-v01Manager /opt/WebSphere/AppServer/mnsure-stst2-med-esb-v01"
+#cnt=`echo ${WAS_HOME} | awk '{print NF}'`
+for WAS in ${WAS_HOME}
+do
+        if [ -f ${WAS}"/bin/manageprofiles.sh" ]
+        then
+                ProfileList=`${WAS}"/bin/manageprofiles.sh" "-listProfiles"|sed 's/^\[//;s/\]//g'`
+                #echo $ProfileList
+                IFS=","
+                for profile in $ProfileList
+                do
+                        profile="${profile#"${profile%%[![:space:]]*}"}"
+                        profile="${profile#"${profile%%[![:space:]]*}"}"
+                        #echo $profile
+                        ${WAS}/bin/wsadmin.sh -profileName $profile -lang jython -f WMQResourceAdapterCustomProp.py
+                done
+        fi
+done
