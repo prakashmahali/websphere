@@ -1,0 +1,41 @@
+import sys,java
+lineSep = java.lang.System.getProperty('line.separator')
+
+cell=sys.argv[0]
+activespec_name=sys.argv[1]
+jndiname=sys.argv[2]
+qmgr=sys.argv[3]
+transport_type=sys.argv[4]
+qmgr_host=sys.argv[5]
+qmgr_port=sys.argv[6]
+channel=sys.argv[7]
+dest_jndi=sys.argv[8]
+
+#Queue Connection Factory
+#qcf=AdminConfig.getid('/MQQueueConnectionFactory:'+ qcf_name +'/')
+#print qcf
+#if len(qcf) > 0 :
+# print "deleting qcf : "+qcf_name
+# AdminConfig.remove(qcf)
+# AdminConfig.save()
+# print "deleted qcf : "+qcf_name
+
+
+print "creating activespec : "+activespec_name
+mqjms=AdminConfig.getid('/Cell:'+ cell +'/JMSProvider:WebSphere MQ JMS Provider/')
+print mqjms
+AdminTask.createWMQActivationSpec('"'+mqjms+'"', '[-name '+activespec_name+' -jndiName '+jndiname+' -qmgrName '+qmgr+' -wmqTransportType '+transport_type+' -qmgrHostname '+qmgr_host+' -qmgrPortNumber '+qmgr_port+' -qmgrSvrconnChannel '+channel+' -destinationJndiName '+dest_jndi+' -destinationType javax.jms.Queue]')
+AdminConfig.save()
+print "created activationspec : "+activespec_name
+
+#Sync Node
+print "syncronizing configuration with master repository "
+nodelist = AdminTask.listManagedNodes().split(lineSep)
+for nodename in nodelist :
+ print "syncronizing nodes"
+ repo = AdminControl.completeObjectName('type=ConfigRepository,process=nodeagent,node='+ nodename +',*')
+ AdminControl.invoke(repo, 'refreshRepositoryEpoch')
+ sync =  AdminControl.completeObjectName('cell='+ cell +',node='+ nodename +',type=NodeSync,*')
+ print AdminControl.invoke(sync , 'sync')
+print "syncronization completed .. "
+
